@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h5>Nama: </h5>
+<b>{{nama}}</b>
+
+<table class="table table-striped" id="my_id">
+    <thead>
+        <tr>
+            <th>Nama Barang</th>
+            <th>Harga Barang</th>
+            <th>Deskripsi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td> </td>
+            <td></td>
+            <td></td>
+        </tr>   
+    </tbody>
+</table>
+<form method="post" id="myForm">
+    {% csrf_token %}
+    <label for="nama_barang">Nama Barang: </label>
+    <input id="nama_barang" type="text">
+    <label for="harga_barang">Harga Barang: </label>
+    <input id="harga_barang" type="text">
+    <label for="deskripsi_barang">Deskripsi Barang: </label>
+    <input id="deskripsi_barang" type="text">
+    <input type="submit" value="OK" onclick="">
+</form>
+<h5>Sesi terakhir login: {{ last_login }}</h5>
+<button><a href="{% url 'wishlist:logout' %}">Logout</a></button>
+<script>
+$(document).ready(function(){
+    var res_response = [];
+    $.getJSON("http://127.0.0.1:8000/wishlist/json/", function(data, status){
+        // response = $.parseJSON(data);
+        $.each(data, function(i, item) {
+            barang = item["fields"]
+            res_response.push({
+                "nama_barang" : barang["nama_barang"],
+                "harga" : barang["harga_barang"],
+                "deskripsi" : barang["deskripsi"]
+            })
+        });
+        for (const element of res_response) {
+            var $tr = $('<tr>').append(
+                $('<td>').text(element.nama_barang),
+                $('<td>').text(element.harga),
+                $('<td>').text(element.deskripsi)
+            ).appendTo('#my_id');
+        }
+    });
+});
+var table = $('#my_id').DataTable();
+$("#myForm").submit(function(event) {
+    event.preventDefault();
+    var nama_barang = $("#nama_barang").val();
+    var harga_barang = $("#harga_barang").val();
+    var deskripsi_barang = $("#deskripsi_barang").val();
+    // let csrftoken = '{{ csrf_token }}'
+    // $.ajax({
+    //     type: "POST",
+    //     headers:{'X-CSRFToken':csrftoken},
+    //     url: "http://127.0.0.1:8000/wishlist/ajax/submit/",
+    //     data: { 
+    //         "nama_barang": nama_barang,
+    //         "harga_barang":  harga_barang,
+    //         "deskripsi_barang": deskripsi_barang
+    //     },
+    //     success: function (response) {
+    //         console.log(response, typeof(response))
+    //     }
+    // })
+    $.post("http://127.0.0.1:8000/wishlist/ajax/submit/",{
+        "nama_barang": nama_barang,
+        "harga_barang":  harga_barang,
+        "deskripsi_barang": deskripsi_barang
+    });
+    var $tr = $('<tr>').append(
+                $('<td>').text(nama_barang),
+                $('<td>').text(harga_barang),
+                $('<td>').text(deskripsi_barang)
+            ).appendTo('#my_id');
+});
+</script>
+{% endblock content %}
